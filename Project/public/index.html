@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bone Fracture Analysis - Pipeline</title>
+  <link rel="stylesheet" href="/styles-pipeline.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Phân tích phát hiện gãy xương - Pipeline</h1>
+    
+    <!-- Progress Tracker -->
+    <div id="progressTracker" class="progress-tracker" style="display: none;">
+      <div class="progress-step" data-step="1">
+        <div class="progress-circle">1</div>
+        <div class="progress-label">Tiền xử lý</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="2">
+        <div class="progress-circle">2</div>
+        <div class="progress-label">Phát hiện biên</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="3">
+        <div class="progress-circle">3</div>
+        <div class="progress-label">Hình thái học</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="4">
+        <div class="progress-circle">4</div>
+        <div class="progress-label">Đặc trưng</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="5">
+        <div class="progress-circle">5</div>
+        <div class="progress-label">Kết luận</div>
+      </div>
+    </div>
+    
+    <!-- Upload Section -->
+    <div class="panel upload-panel">
+      <h2>📤 Bước 0: Upload ảnh X-quang</h2>
+      <p class="step-description">Chọn ảnh X-quang để bắt đầu phân tích</p>
+      <input type="file" id="fileInput" accept="image/*" style="display: none;">
+      <button id="uploadBtn" class="btn btn-primary">Chọn ảnh</button>
+      <div id="originalPreview" class="image-preview">
+        <img id="originalImg" src="" alt="Original image">
+      </div>
+    </div>
+
+    <!-- Pipeline Steps -->
+    <div id="pipelineSteps" class="pipeline-container" style="display: none;">
+      
+      <!-- Step 1: Preprocessing -->
+      <div class="panel step-panel step-incomplete" id="step1">
+        <div class="step-header">
+          <h2>🔧 Bước 1: Tiền xử lý</h2>
+          <span class="step-status" id="status1">Chưa hoàn thành</span>
+        </div>
+        <p class="step-description">Cải thiện chất lượng ảnh trước khi phân tích. Chọn một thuật toán và nhấn "Xử lý".</p>
+        
+        <div class="step-content">
+          <div class="algorithm-select">
+            <label><strong>Chọn thuật toán:</strong></label>
+            <select id="preprocessingAlgo" class="algo-select">
+              <option value="">-- Chọn thuật toán tiền xử lý --</option>
+              <option value="clahe">CLAHE - Adaptive Histogram Equalization</option>
+              <option value="histogram">Histogram Equalization - Cân bằng toàn cục</option>
+              <option value="median">Median Blur - Lọc nhiễu muối tiêu</option>
+              <option value="gaussian">Gaussian Blur - Làm mượt ảnh</option>
+              <option value="bilateral">Bilateral Filter - Làm mượt giữ cạnh</option>
+            </select>
+            <button class="btn btn-process" data-step="preprocessing">
+              ▶️ Xử lý Bước 1
+            </button>
+          </div>
+          
+          <div class="result-container" id="resultContainer1" style="display: none;">
+            <h4>✅ Kết quả Bước 1:</h4>
+            <div class="result-preview">
+              <img id="result1" src="" alt="Step 1 result">
+            </div>
+            <p class="result-hint">👆 Ảnh đã được tiền xử lý. Bước tiếp theo sẽ xuất hiện bên dưới.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Edge Detection -->
+      <div class="panel step-panel step-incomplete" id="step2" style="display: none;">
+        <div class="step-header">
+          <h2>🔍 Bước 2: Phát hiện biên</h2>
+          <span class="step-status" id="status2">Chưa hoàn thành</span>
+        </div>
+        <p class="step-description">Phát hiện biên và vùng nghi ngờ. Chọn thuật toán và nhấn "Xử lý".</p>
+        
+        <div class="step-content">
+          <div class="algorithm-select">
+            <label><strong>Chọn thuật toán:</strong></label>
+            <select id="edgeDetectionAlgo" class="algo-select">
+              <option value="">-- Chọn thuật toán phát hiện biên --</option>
+              <option value="otsu">Otsu Thresholding - Ngưỡng hóa tự động</option>
+              <option value="canny">Canny Edge Detection - Phát hiện biên chính xác</option>
+              <option value="sobel">Sobel Edge Detection - Phát hiện biên đơn giản</option>
+              <option value="watershed">Watershed Segmentation - Phân vùng watershed</option>
+            </select>
+            <button class="btn btn-process" data-step="edgeDetection">
+              ▶️ Xử lý Bước 2
+            </button>
+          </div>
+          
+          <div class="result-container" id="resultContainer2" style="display: none;">
+            <h4>✅ Kết quả Bước 2:</h4>
+            <div class="result-preview">
+              <img id="result2" src="" alt="Step 2 result">
+            </div>
+            <p class="result-hint">👆 Ảnh đã phát hiện biên. Bước tiếp theo sẽ xuất hiện bên dưới.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Morphology -->
+      <div class="panel step-panel step-incomplete" id="step3" style="display: none;">
+        <div class="step-header">
+          <h2>⚙️ Bước 3: Xử lý hình thái học</h2>
+          <span class="step-status" id="status3">Chưa hoàn thành</span>
+        </div>
+        <p class="step-description">Làm sạch và cải thiện mask nhị phân. Chọn phép toán và điều chỉnh tham số.</p>
+        
+        <div class="step-content">
+          <div class="algorithm-select">
+            <label><strong>Chọn phép toán:</strong></label>
+            <select id="morphologyAlgo" class="algo-select">
+              <option value="">-- Chọn phép toán hình thái học --</option>
+              <option value="erosion">Erosion - Co vùng, loại nhiễu nhỏ</option>
+              <option value="dilation">Dilation - Mở rộng vùng, nối các vùng</option>
+              <option value="opening">Opening - Erosion → Dilation (loại nhiễu)</option>
+              <option value="closing">Closing - Dilation → Erosion (lấp lỗ hổng)</option>
+            </select>
+            <div class="params">
+              <label>Kernel size: <input type="number" id="kernelSize" value="5" min="3" max="11" step="2"></label>
+              <label>Iterations: <input type="number" id="iterations" value="2" min="1" max="5"></label>
+            </div>
+            <button class="btn btn-process" data-step="morphology">
+              ▶️ Xử lý Bước 3
+            </button>
+          </div>
+          
+          <div class="result-container" id="resultContainer3" style="display: none;">
+            <h4>✅ Kết quả Bước 3:</h4>
+            <div class="result-preview">
+              <img id="result3" src="" alt="Step 3 result">
+            </div>
+            <p class="result-hint">👆 Mask đã được làm sạch. Bước tiếp theo sẽ xuất hiện bên dưới.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Feature Analysis -->
+      <div class="panel step-panel step-incomplete" id="step4" style="display: none;">
+        <div class="step-header">
+          <h2>📊 Bước 4: Phân tích đặc trưng</h2>
+          <span class="step-status" id="status4">Chưa hoàn thành</span>
+        </div>
+        <p class="step-description">Phân tích các thành phần và tính toán đặc trưng. Chọn phương thức hiển thị.</p>
+        
+        <div class="step-content">
+          <div class="algorithm-select">
+            <label><strong>Chọn phương thức hiển thị:</strong></label>
+            <select id="featureAnalysisAlgo" class="algo-select">
+              <option value="">-- Chọn phương thức phân tích --</option>
+              <option value="components">Connected Components - Gán nhãn components</option>
+              <option value="area">Area Analysis - Phân tích diện tích</option>
+              <option value="centroid">Centroid Analysis - Phân tích tâm khối</option>
+              <option value="bbox">Bounding Box - Vẽ hộp bao components</option>
+            </select>
+            <button class="btn btn-process" data-step="featureAnalysis">
+              ▶️ Phân tích Bước 4
+            </button>
+          </div>
+          
+          <div class="result-container" id="resultContainer4" style="display: none;">
+            <h4>✅ Kết quả Bước 4:</h4>
+            <div class="result-preview">
+              <img id="result4" src="" alt="Step 4 result">
+            </div>
+            <div id="featureStats" class="stats"></div>
+            <p class="result-hint">👆 Đã phân tích components. Bước cuối cùng sẽ xuất hiện bên dưới.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: Heuristic Analysis -->
+      <div class="panel step-panel step-incomplete" id="step5" style="display: none;">
+        <div class="step-header">
+          <h2>🎯 Bước 5: Phân tích Heuristic & Kết luận</h2>
+          <span class="step-status" id="status5">Chưa hoàn thành</span>
+        </div>
+        <p class="step-description">Báo cáo tự động được tạo sau khi hoàn thành Bước 4.</p>
+        
+        <div class="step-content">
+          <div class="result-container" id="resultContainer5" style="display: block;">
+            <div id="heuristicResults" class="results-panel"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-panel" id="actionPanel" style="display: none;">
+      <button class="btn btn-secondary" id="resetBtn">🔄 Bắt đầu lại</button>
+      <button class="btn btn-secondary" id="downloadBtn">💾 Tải xuống kết quả</button>
+      <button class="btn btn-secondary" id="viewHistoryBtn">📜 Xem lịch sử</button>
+    </div>
+
+    <!-- History Panel -->
+    <div class="panel" id="historyPanel" style="display: none;">
+      <h2>📜 Lịch sử xử lý</h2>
+      <div id="historyList" class="history-list"></div>
+    </div>
+
+  </div>
+
+  <script type="module" src="/js/app-pipeline.js"></script>
+</body>
+</html>
