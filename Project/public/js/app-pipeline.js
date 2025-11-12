@@ -136,9 +136,10 @@ async function processStep(stepName) {
     // Get parameters if needed
     let params = {};
     if (stepName === 'morphology') {
+      // Kernel size and iterations are fixed to 5 and 2 (hidden from UI)
       params = {
-        kernelSize: parseInt(document.getElementById('kernelSize').value),
-        iterations: parseInt(document.getElementById('iterations').value)
+        kernelSize: 5,
+        iterations: 2
       };
     }
     
@@ -358,24 +359,7 @@ function displayFullReport(report) {
   html += `<li><strong>Mức độ:</strong> ${report.summary.description}</li>`;
   html += `</ul>`;
   html += `</div>`;
-  
-  // Metrics
-  html += `<div class="report-section">`;
-  html += `<h4>Các chỉ số:</h4>`;
-  html += `<table class="metrics-table">`;
-  html += `<tr><td>Số components</td><td>${report.metrics.nComponents}</td></tr>`;
-  html += `<tr><td>Components đáng kể</td><td>${report.metrics.nSignificant}</td></tr>`;
-  html += `<tr><td>Components hiệu dụng</td><td>${report.metrics.nEffective}</td></tr>`;
-  html += `<tr><td>Diện tích lớn nhất</td><td>${report.metrics.largestArea} px</td></tr>`;
-  html += `<tr><td>Tỷ lệ mask</td><td>${(report.metrics.maskPct * 100).toFixed(2)}%</td></tr>`;
-  html += `</table>`;
-  html += `</div>`;
-  
-  // Recommendation
-  html += `<div class="report-section recommendation">`;
-  html += `<h4>🩺 Khuyến nghị:</h4>`;
-  html += `<p>${report.recommendation}</p>`;
-  html += `</div>`;
+  // Note: Metrics and recommendations removed by request.
   
   html += '</div>';
   

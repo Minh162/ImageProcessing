@@ -181,22 +181,33 @@ export class PipelineController {
     const lastResult = this.getLastResult();
     const { binary, width, height } = lastResult.data;
     
-    let processed;
-    const kernelSize = params.kernelSize || 3;
-    const iterations = params.iterations || 1;
+  let processed;
+  // Enforce fixed kernel size and iterations per user request
+  const kernelSize = 5;
+  const iterations = 2;
+    // If the incoming binary is very sparse (likely an edge map like Canny),
+    // opening (erosion->dilation) with a large kernel may remove all edges.
+    // In that case, do a small pre-dilation to thicken edges before morphology.
+    const fgCount = binary.reduce((s, v) => s + (v === 255 ? 1 : 0), 0);
+    const maskPct = fgCount / (width * height);
+    let binForMorph = binary;
+    if (maskPct < 0.01) {
+      // small thicken step: kernel 3, 1 iteration
+      binForMorph = Morphology.dilation(binary, width, height, 3, 1);
+    }
     
     switch (algorithm) {
       case 'erosion':
-        processed = Morphology.erosion(binary, width, height, kernelSize, iterations);
+        processed = Morphology.erosion(binForMorph, width, height, kernelSize, iterations);
         break;
       case 'dilation':
-        processed = Morphology.dilation(binary, width, height, kernelSize, iterations);
+        processed = Morphology.dilation(binForMorph, width, height, kernelSize, iterations);
         break;
       case 'opening':
-        processed = Morphology.opening(binary, width, height, kernelSize, iterations);
+        processed = Morphology.opening(binForMorph, width, height, kernelSize, iterations);
         break;
       case 'closing':
-        processed = Morphology.closing(binary, width, height, kernelSize, iterations);
+        processed = Morphology.closing(binForMorph, width, height, kernelSize, iterations);
         break;
       default:
         throw new Error(`Unknown morphology algorithm: ${algorithm}`);
@@ -224,7 +235,8 @@ export class PipelineController {
     const analysis = FeatureAnalysis.analyzeComponents(binary, width, height);
     
     // Lọc components nếu cần
-    const minArea = params.minArea || Math.max(100, Math.round(width * height * 0.0005));
+  // Use a more permissive default minArea so small joints/components are kept
+  const minArea = params.minArea || Math.max(20, Math.round(width * height * 0.00005));
     const filtered = FeatureAnalysis.filterComponents(analysis.components, {
       minArea,
       excludeBorderTouching: params.excludeBorderTouching || false
@@ -314,11 +326,20 @@ export class PipelineController {
         break;
         
       case 'report':
-        const h = lastResult.data.heuristic;
-        const s = lastResult.data.severity;
-        if (!h || !s) {
-          throw new Error('Need fracture and severity analysis first');
+        // Ensure fracture and severity analyses exist; if not, run them here
+        let current = this.getLastResult();
+        if (!current.data.heuristic) {
+          // run fracture analysis
+          this.processHeuristic('fracture', params);
+          current = this.getLastResult();
         }
+        if (!current.data.severity) {
+          // run severity analysis (requires fracture present)
+          this.processHeuristic('severity', params);
+          current = this.getLastResult();
+        }
+        const h = current.data.heuristic;
+        const s = current.data.severity;
         const report = Heuristic.generateReport(h, analysis.components, s);
         result = {
           step: 5,
