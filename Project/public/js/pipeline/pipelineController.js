@@ -57,7 +57,8 @@ export class PipelineController {
           { value: 'components', label: 'Connected Components' },
           { value: 'area', label: 'Area Analysis' },
           { value: 'centroid', label: 'Centroid Analysis' },
-          { value: 'bbox', label: 'Bounding Box Analysis' }
+          { value: 'bbox', label: 'Bounding Box Analysis' },
+          { value: 'svm', label: 'SVM Analysis - Support Vector Machine' }
         ]
       },
       {
@@ -244,6 +245,8 @@ export class PipelineController {
     
     // Tạo visualization
     let imageUrl;
+    let svmAnalysisResult = null;
+    
     switch (algorithm) {
       case 'components':
         imageUrl = ImageUtils.drawComponents(this.state.originalImage, analysis.labels, analysis.nComponents, width, height);
@@ -256,6 +259,10 @@ export class PipelineController {
         break;
       case 'bbox':
         imageUrl = ImageUtils.drawBoundingBoxes(this.state.originalImage, filtered, width, height);
+        break;
+      case 'svm':
+        svmAnalysisResult = FeatureAnalysis.svmAnalysis(filtered, width, height);
+        imageUrl = ImageUtils.drawSVMResultsOnProcessedImage(binary, svmAnalysisResult, width, height);
         break;
       default:
         imageUrl = ImageUtils.binaryToDataURL(binary, width, height);
@@ -273,7 +280,8 @@ export class PipelineController {
           nComponents: analysis.nComponents,
           components: filtered,
           allComponents: analysis.components,
-          labels: analysis.labels
+          labels: analysis.labels,
+          svmAnalysis: svmAnalysisResult
         }
       },
       imageUrl

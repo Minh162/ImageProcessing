@@ -161,7 +161,11 @@ async function processStep(stepName) {
     
     // Show feature stats if applicable
     if (stepName === 'featureAnalysis' && result.data.analysis) {
-      displayFeatureStats(result.data.analysis);
+      if (result.algorithm === 'svm' && result.data.analysis.svmAnalysis) {
+        displaySVMStats(result.data.analysis.svmAnalysis);
+      } else {
+        displayFeatureStats(result.data.analysis);
+      }
       
       // Tự động chạy Bước 5 (Heuristic & Report) sau khi hoàn thành Bước 4
       setTimeout(() => {
@@ -283,6 +287,86 @@ function displayFeatureStats(analysis) {
     if (comps.length > 10) {
       html += `<p><em>... và ${comps.length - 10} components khác</em></p>`;
     }
+  }
+  
+  statsDiv.innerHTML = html;
+  statsDiv.style.display = 'block';
+}
+
+function displaySVMStats(svmAnalysis) {
+  const statsDiv = document.getElementById('featureStats');
+  const { totalComponents, fractureComponents, normalComponents, overallAssessment } = svmAnalysis;
+  
+  let html = '<h3>🤖 Phân tích SVM (Support Vector Machine)</h3>';
+  
+  // Overall Assessment
+  html += '<div class="svm-overall">';
+  const statusClass = overallAssessment.hasFracture ? 'fracture-positive' : 'fracture-negative';
+  const statusIcon = overallAssessment.hasFracture ? '⚠️' : '✅';
+  const statusText = overallAssessment.hasFracture ? 'CÓ DẤU HIỆU GÃY XƯƠNG' : 'KHÔNG PHÁT HIỆN GÃY XƯƠNG';
+  
+  html += `<div class="status-box ${statusClass}">`;
+  html += `<div class="status-icon">${statusIcon}</div>`;
+  html += `<div class="status-text">${statusText}</div>`;
+  html += `<div class="confidence">Độ tin cậy: ${overallAssessment.confidence}%</div>`;
+  html += `</div>`;
+  html += '</div>';
+  
+  // Summary Stats
+  html += '<div class="svm-summary">';
+  html += '<h4>📊 Tóm tắt phân tích:</h4>';
+  html += `<p><strong>Tổng số components:</strong> ${totalComponents}</p>`;
+  html += `<p><strong>Components nghi ngờ gãy xương:</strong> ${fractureComponents.length}</p>`;
+  html += `<p><strong>Components bình thường:</strong> ${normalComponents.length}</p>`;
+  html += `<p><strong>Tỷ lệ diện tích gãy xương:</strong> ${(overallAssessment.fractureAreaRatio * 100).toFixed(2)}%</p>`;
+  html += `<p><strong>Điểm số trung bình:</strong> ${(overallAssessment.fractureScore * 100).toFixed(1)}%</p>`;
+  html += '</div>';
+  
+  // Fracture Components Table
+  if (fractureComponents.length > 0) {
+    html += '<div class="svm-fracture-components">';
+    html += '<h4>🔴 Components nghi ngờ gãy xương:</h4>';
+    html += '<table class="stats-table">';
+    html += '<tr><th>ID</th><th>Diện tích</th><th>Centroid</th><th>Xác suất gãy</th><th>Điểm SVM</th></tr>';
+    
+    fractureComponents.slice(0, 8).forEach(comp => {
+      html += `<tr>
+        <td>#${comp.componentId}</td>
+        <td>${comp.area} px</td>
+        <td>(${comp.centroid.x.toFixed(1)}, ${comp.centroid.y.toFixed(1)})</td>
+        <td><span class="fracture-prob">${(comp.probability * 100).toFixed(1)}%</span></td>
+        <td>${comp.svmScore.toFixed(3)}</td>
+      </tr>`;
+    });
+    
+    html += '</table>';
+    if (fractureComponents.length > 8) {
+      html += `<p><em>... và ${fractureComponents.length - 8} components nghi ngờ khác</em></p>`;
+    }
+    html += '</div>';
+  }
+  
+  // Normal Components (limited display)
+  if (normalComponents.length > 0) {
+    html += '<div class="svm-normal-components">';
+    html += '<h4>🟢 Components bình thường (Top 5):</h4>';
+    html += '<table class="stats-table">';
+    html += '<tr><th>ID</th><th>Diện tích</th><th>Centroid</th><th>Xác suất bình thường</th></tr>';
+    
+    normalComponents.slice(0, 5).forEach(comp => {
+      html += `<tr>
+        <td>#${comp.componentId}</td>
+        <td>${comp.area} px</td>
+        <td>(${comp.centroid.x.toFixed(1)}, ${comp.centroid.y.toFixed(1)})</td>
+        <td><span class="normal-prob">${((1 - comp.probability) * 100).toFixed(1)}%</span></td>
+      </tr>`;
+    });
+    
+    html += '</table>';
+    if (normalComponents.length > 5) {
+      html += `<p><em>... và ${normalComponents.length - 5} components bình thường khác</em></p>`;
+    }
+    html += '</div>';
   }
   
   statsDiv.innerHTML = html;

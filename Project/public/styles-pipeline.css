@@ -656,6 +656,59 @@ img {
   background: #17a2b8;
 }
 
+/* ===== SVM ANALYSIS STYLES ===== */
+.svm-overall {
+  margin: 15px 0;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.svm-summary {
+  margin: 15px 0;
+  padding: 10px;
+  background: #e9ecef;
+  border-radius: 6px;
+}
+
+.svm-fracture-components {
+  margin: 15px 0;
+  padding: 10px;
+  border-left: 4px solid #dc3545;
+  background: #fff5f5;
+}
+
+.svm-normal-components {
+  margin: 15px 0;
+  padding: 10px;
+  border-left: 4px solid #28a745;
+  background: #f8fff8;
+}
+
+.fracture-prob {
+  color: #dc3545;
+  font-weight: bold;
+  background: rgba(220, 53, 69, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.normal-prob {
+  color: #28a745;
+  font-weight: bold;
+  background: rgba(40, 167, 69, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.svm-summary p {
+  margin: 8px 0;
+}
+
+.svm-summary strong {
+  color: #495057;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .container {
