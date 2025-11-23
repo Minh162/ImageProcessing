@@ -39,6 +39,19 @@ const algoSelects = {
   featureAnalysis: document.getElementById('featureAnalysisAlgo')
 };
 
+// Canny threshold controls
+const cannyThresholdControls = document.getElementById('cannyThresholdControls');
+const cannyLowThreshold = document.getElementById('cannyLowThreshold');
+const cannyHighThreshold = document.getElementById('cannyHighThreshold');
+const lowThresholdValue = document.getElementById('lowThresholdValue');
+const highThresholdValue = document.getElementById('highThresholdValue');
+
+// Morphology parameter controls
+const kernelSizeSlider = document.getElementById('kernelSize');
+const iterationsSlider = document.getElementById('iterations');
+const kernelSizeValue = document.getElementById('kernelSizeValue');
+const iterationsValue = document.getElementById('iterationsValue');
+
 // Result images
 const resultImages = {
   1: document.getElementById('result1'),
@@ -64,6 +77,53 @@ function setupEventListeners() {
   document.querySelectorAll('.btn-process').forEach(btn => {
     btn.addEventListener('click', handleProcessClick);
   });
+  
+  // Edge detection algorithm select - show/hide Canny threshold controls
+  if (algoSelects.edgeDetection) {
+    algoSelects.edgeDetection.addEventListener('change', (e) => {
+      if (e.target.value === 'canny') {
+        cannyThresholdControls.style.display = 'block';
+      } else {
+        cannyThresholdControls.style.display = 'none';
+      }
+    });
+  }
+  
+  // Canny threshold sliders
+  if (cannyLowThreshold) {
+    cannyLowThreshold.addEventListener('input', (e) => {
+      lowThresholdValue.textContent = e.target.value;
+      // Ensure low threshold is always less than high threshold
+      if (parseInt(e.target.value) >= parseInt(cannyHighThreshold.value)) {
+        cannyHighThreshold.value = parseInt(e.target.value) + 10;
+        highThresholdValue.textContent = cannyHighThreshold.value;
+      }
+    });
+  }
+  
+  if (cannyHighThreshold) {
+    cannyHighThreshold.addEventListener('input', (e) => {
+      highThresholdValue.textContent = e.target.value;
+      // Ensure high threshold is always greater than low threshold
+      if (parseInt(e.target.value) <= parseInt(cannyLowThreshold.value)) {
+        cannyLowThreshold.value = parseInt(e.target.value) - 10;
+        lowThresholdValue.textContent = cannyLowThreshold.value;
+      }
+    });
+  }
+  
+  // Morphology parameter sliders
+  if (kernelSizeSlider) {
+    kernelSizeSlider.addEventListener('input', (e) => {
+      kernelSizeValue.textContent = e.target.value;
+    });
+  }
+  
+  if (iterationsSlider) {
+    iterationsSlider.addEventListener('input', (e) => {
+      iterationsValue.textContent = e.target.value;
+    });
+  }
 }
 
 async function handleFileUpload(e) {
@@ -136,10 +196,16 @@ async function processStep(stepName) {
     // Get parameters if needed
     let params = {};
     if (stepName === 'morphology') {
-      // Kernel size and iterations are fixed to 5 and 2 (hidden from UI)
+      // Get morphology parameters from sliders
       params = {
-        kernelSize: 5,
-        iterations: 2
+        kernelSize: parseInt(kernelSizeSlider.value),
+        iterations: parseInt(iterationsSlider.value)
+      };
+    } else if (stepName === 'edgeDetection' && algorithm === 'canny') {
+      // Get Canny threshold values from sliders
+      params = {
+        lowThreshold: parseInt(cannyLowThreshold.value),
+        highThreshold: parseInt(cannyHighThreshold.value)
       };
     }
     

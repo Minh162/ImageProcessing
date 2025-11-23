@@ -709,6 +709,202 @@ img {
   color: #495057;
 }
 
+/* ===== THRESHOLD CONTROLS ===== */
+.threshold-controls {
+  width: 100%;
+  margin-top: 15px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border: 2px solid #667eea;
+}
+
+.threshold-group {
+  margin-bottom: 20px;
+}
+
+.threshold-group:last-child {
+  margin-bottom: 0;
+}
+
+.threshold-group label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.threshold-value {
+  display: inline-block;
+  min-width: 40px;
+  padding: 4px 12px;
+  background: #667eea;
+  color: white;
+  border-radius: 20px;
+  font-size: 0.95em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.threshold-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #e9ecef 0%, #667eea 100%);
+  outline: none;
+  opacity: 0.9;
+  transition: opacity 0.3s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.threshold-slider:hover {
+  opacity: 1;
+}
+
+.threshold-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.threshold-slider::-webkit-slider-thumb:hover {
+  background: #764ba2;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+}
+
+.threshold-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.threshold-slider::-moz-range-thumb:hover {
+  background: #764ba2;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+}
+
+.threshold-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* ===== MORPHOLOGY CONTROLS ===== */
+.morphology-controls {
+  width: 100%;
+  margin-top: 15px;
+  padding: 20px;
+  background: linear-gradient(135deg, #fff9db 0%, #ffe8cc 100%);
+  border-radius: 8px;
+  border: 2px solid #ffc107;
+}
+
+.param-group {
+  margin-bottom: 20px;
+}
+
+.param-group:last-child {
+  margin-bottom: 0;
+}
+
+.param-group label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.param-value {
+  display: inline-block;
+  min-width: 40px;
+  padding: 4px 12px;
+  background: #ffc107;
+  color: #333;
+  border-radius: 20px;
+  font-size: 0.95em;
+  text-align: center;
+  font-weight: 700;
+}
+
+.param-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #e9ecef 0%, #ffc107 100%);
+  outline: none;
+  opacity: 0.9;
+  transition: opacity 0.3s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.param-slider:hover {
+  opacity: 1;
+}
+
+.param-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffc107;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+  transition: all 0.3s ease;
+}
+
+.param-slider::-webkit-slider-thumb:hover {
+  background: #e67700;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.6);
+}
+
+.param-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffc107;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+  transition: all 0.3s ease;
+}
+
+.param-slider::-moz-range-thumb:hover {
+  background: #e67700;
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.6);
+}
+
+.param-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.85em;
+  color: #6c757d;
+  font-style: italic;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .container {
@@ -735,5 +931,13 @@ img {
   
   .history-thumb {
     margin: 10px auto;
+  }
+  
+  .threshold-controls {
+    padding: 15px;
+  }
+  
+  .morphology-controls {
+    padding: 15px;
   }
 }

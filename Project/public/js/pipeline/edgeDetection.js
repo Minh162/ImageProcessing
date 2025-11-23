@@ -33,7 +33,6 @@ export function otsuThreshold(gray) {
       threshold = t;
     }
   }
-  
   const bin = new Uint8ClampedArray(n);
   for (let i = 0; i < n; i++) bin[i] = gray[i] > threshold ? 255 : 0;
   
@@ -212,111 +211,125 @@ export function sobelEdgeDetection(gray, width, height, threshold = 100) {
 // Watershed Segmentation (simplified marker-based)
 // Phân vùng ảnh dựa trên watershed transform
 export function watershedSegmentation(gray, width, height) {
-  // 1. Tính gradient magnitude
-  const { magnitude } = sobelGradient(gray, width, height);
+  // Simplified approach: Dùng Otsu thresholding + morphology để phân vùng
+  // Watershed đầy đủ quá phức tạp và chậm cho web
   
-  // 2. Tìm local minima làm markers
-  const markers = findLocalMinima(magnitude, width, height);
+  // 1. Otsu threshold
+  const { binary } = otsuThreshold(gray);
   
-  // 3. Watershed flooding (simplified - priority queue based)
-  const labels = watershedFlood(magnitude, markers, width, height);
+  // 2. Tính distance transform (simplified)
+  const distance = distanceTransform(binary, width, height);
   
-  // 4. Tạo binary edge map từ watershed boundaries
+  // 3. Tìm regional maxima của distance transform
+  const peaks = findRegionalMaxima(distance, width, height);
+  
+  // 4. Tạo boundaries giữa các peaks
   const edges = new Uint8ClampedArray(gray.length);
+  
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const idx = y * width + x;
-      const label = labels[idx];
       
-      // Kiểm tra xem có phải boundary không
-      let isBoundary = false;
+      // Nếu là background, skip
+      if (binary[idx] === 0) continue;
+      
+      // Kiểm tra có phải boundary không (gradient cao)
+      let hasEdge = false;
+      const centerDist = distance[idx];
+      
       for (let ky = -1; ky <= 1; ky++) {
         for (let kx = -1; kx <= 1; kx++) {
-          if (labels[(y + ky) * width + (x + kx)] !== label && labels[(y + ky) * width + (x + kx)] > 0) {
-            isBoundary = true;
+          if (kx === 0 && ky === 0) continue;
+          const nidx = (y + ky) * width + (x + kx);
+          const diff = Math.abs(distance[nidx] - centerDist);
+          if (diff > 2) {
+            hasEdge = true;
             break;
           }
         }
-        if (isBoundary) break;
+        if (hasEdge) break;
       }
       
-      edges[idx] = isBoundary ? 255 : 0;
+      edges[idx] = hasEdge ? 255 : 0;
     }
   }
   
   return edges;
 }
 
-function findLocalMinima(magnitude, width, height) {
-  const markers = new Int32Array(magnitude.length);
-  let markerID = 1;
+// Distance Transform (simplified - Euclidean approximation)
+function distanceTransform(binary, width, height) {
+  const distance = new Float32Array(binary.length);
+  const INF = 9999;
   
-  for (let y = 1; y < height - 1; y++) {
-    for (let x = 1; x < width - 1; x++) {
+  // Initialize
+  for (let i = 0; i < binary.length; i++) {
+    distance[i] = binary[i] === 255 ? INF : 0;
+  }
+  
+  // Forward pass
+  for (let y = 1; y < height; y++) {
+    for (let x = 1; x < width; x++) {
       const idx = y * width + x;
-      const val = magnitude[idx];
+      if (binary[idx] === 255) {
+        const minDist = Math.min(
+          distance[idx - 1] + 1,
+          distance[idx - width] + 1,
+          distance[idx - width - 1] + 1.4,
+          distance[idx - width + 1] + 1.4
+        );
+        distance[idx] = Math.min(distance[idx], minDist);
+      }
+    }
+  }
+  
+  // Backward pass
+  for (let y = height - 2; y >= 0; y--) {
+    for (let x = width - 2; x >= 0; x--) {
+      const idx = y * width + x;
+      if (binary[idx] === 255) {
+        const minDist = Math.min(
+          distance[idx + 1] + 1,
+          distance[idx + width] + 1,
+          distance[idx + width + 1] + 1.4,
+          distance[idx + width - 1] + 1.4
+        );
+        distance[idx] = Math.min(distance[idx], minDist);
+      }
+    }
+  }
+  
+  return distance;
+}
+
+// Find Regional Maxima
+function findRegionalMaxima(distance, width, height) {
+  const maxima = new Uint8Array(distance.length);
+  
+  for (let y = 2; y < height - 2; y++) {
+    for (let x = 2; x < width - 2; x++) {
+      const idx = y * width + x;
+      const val = distance[idx];
       
-      let isMinimum = true;
-      for (let ky = -1; ky <= 1 && isMinimum; ky++) {
-        for (let kx = -1; kx <= 1 && isMinimum; kx++) {
+      if (val < 3) continue; // Chỉ xét các vùng có distance đủ lớn
+      
+      let isMaximum = true;
+      for (let ky = -1; ky <= 1 && isMaximum; ky++) {
+        for (let kx = -1; kx <= 1 && isMaximum; kx++) {
           if (kx === 0 && ky === 0) continue;
-          if (magnitude[(y + ky) * width + (x + kx)] < val) {
-            isMinimum = false;
+          if (distance[(y + ky) * width + (x + kx)] > val) {
+            isMaximum = false;
           }
         }
       }
       
-      if (isMinimum && val < 50) { // Chỉ lấy minima với giá trị thấp
-        markers[idx] = markerID++;
+      if (isMaximum) {
+        maxima[idx] = 255;
       }
     }
   }
   
-  return markers;
+  return maxima;
 }
 
-function watershedFlood(magnitude, markers, width, height) {
-  const labels = new Int32Array(markers);
-  const visited = new Uint8Array(magnitude.length);
-  
-  // Priority queue (simplified - sử dụng array và sort)
-  const queue = [];
-  
-  // Thêm tất cả marker pixels vào queue
-  for (let i = 0; i < markers.length; i++) {
-    if (markers[i] > 0) {
-      queue.push({ idx: i, priority: magnitude[i] });
-      visited[i] = 1;
-    }
-  }
-  
-  // Process queue
-  while (queue.length > 0) {
-    queue.sort((a, b) => a.priority - b.priority);
-    const { idx } = queue.shift();
-    
-    const y = Math.floor(idx / width);
-    const x = idx % width;
-    const label = labels[idx];
-    
-    // Kiểm tra các neighbor
-    for (let ky = -1; ky <= 1; ky++) {
-      for (let kx = -1; kx <= 1; kx++) {
-        if (kx === 0 && ky === 0) continue;
-        
-        const ny = y + ky;
-        const nx = x + kx;
-        if (ny < 0 || ny >= height || nx < 0 || nx >= width) continue;
-        
-        const nidx = ny * width + nx;
-        if (!visited[nidx]) {
-          visited[nidx] = 1;
-          labels[nidx] = label;
-          queue.push({ idx: nidx, priority: magnitude[nidx] });
-        }
-      }
-    }
-  }
-  
-  return labels;
-}
+

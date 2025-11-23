@@ -104,6 +104,28 @@
               <option value="sobel">Sobel Edge Detection - Phát hiện biên đơn giản</option>
               <option value="watershed">Watershed Segmentation - Phân vùng watershed</option>
             </select>
+            
+            <!-- Canny Threshold Controls -->
+            <div id="cannyThresholdControls" class="threshold-controls" style="display: none;">
+              <div class="threshold-group">
+                <label for="cannyLowThreshold">
+                  <strong>Ngưỡng thấp (Low Threshold):</strong>
+                  <span id="lowThresholdValue" class="threshold-value">50</span>
+                </label>
+                <input type="range" id="cannyLowThreshold" min="0" max="255" value="50" step="5" class="threshold-slider">
+                <small class="threshold-hint">Pixel có gradient &lt; ngưỡng thấp sẽ bị loại bỏ</small>
+              </div>
+              
+              <div class="threshold-group">
+                <label for="cannyHighThreshold">
+                  <strong>Ngưỡng cao (High Threshold):</strong>
+                  <span id="highThresholdValue" class="threshold-value">150</span>
+                </label>
+                <input type="range" id="cannyHighThreshold" min="0" max="255" value="150" step="5" class="threshold-slider">
+                <small class="threshold-hint">Pixel có gradient ≥ ngưỡng cao là biên mạnh (strong edge)</small>
+              </div>
+            </div>
+            
             <button class="btn btn-process" data-step="edgeDetection">
               ▶️ Xử lý Bước 2
             </button>
@@ -137,11 +159,28 @@
               <option value="opening">Opening - Erosion → Dilation (loại nhiễu)</option>
               <option value="closing">Closing - Dilation → Erosion (lấp lỗ hổng)</option>
             </select>
-            <div class="params">
-              <!-- Kernel size and iterations fixed to 5 and 2 (hidden from UI) -->
-              <input type="hidden" id="kernelSize" value="5">
-              <input type="hidden" id="iterations" value="2">
+            
+            <!-- Morphology Parameters Controls -->
+            <div class="morphology-controls">
+              <div class="param-group">
+                <label for="kernelSize">
+                  <strong>Độ mạnh hiệu ứng:</strong>
+                  <span id="kernelSizeValue" class="param-value">5</span>
+                </label>
+                <input type="range" id="kernelSize" min="3" max="15" value="5" step="2" class="param-slider">
+                <small class="param-hint">💡 Càng cao → Co/dãn càng mạnh. Với ảnh biên mỏng nên dùng 3-5</small>
+              </div>
+              
+              <div class="param-group">
+                <label for="iterations">
+                  <strong>Số lần áp dụng:</strong>
+                  <span id="iterationsValue" class="param-value">2</span>
+                </label>
+                <input type="range" id="iterations" min="1" max="5" value="2" step="1" class="param-slider">
+                <small class="param-hint">💡 Lặp nhiều lần → Hiệu ứng tích lũy mạnh hơn. Thường dùng 1-2 lần</small>
+              </div>
             </div>
+            
             <button class="btn btn-process" data-step="morphology">
               ▶️ Xử lý Bước 3
             </button>
